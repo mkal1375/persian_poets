@@ -2,7 +2,8 @@ import urllib
 import requests
 from bs4 import BeautifulSoup
 import time
-import redis
+# import redis
+import sqlite3
 """
 1)  request poets list 
 2)  processing the list and extract the poet page url 
@@ -12,10 +13,24 @@ import redis
 """
 
 # connect to redis server :
-my_redis = redis.StrictRedis(host="localhost", port=6379, db=0)
+# my_redis = redis.StrictRedis(host="localhost", port=6379, db=0)
+
 ################################################################################
 ### get data: ##################################################################
 ################################################################################
+
+def create_tables():
+    try:
+        db = sqlite3.connect("poets.db")
+        cursor = db.cursor()
+        cursor.execute(""" CREATE TABLE poets(id INTEGER PRIMARY KEY AUTOINCREMENT,name,describe,infobox)""")
+        cursor.execute(""" CREATE TABLE poems(id INTEGER PRIMARY KEY AUTOINCREMENT,poet_id INTEGER,poem,FOREIGN KEY(poet_id) REFERENCES poet(id)) """)
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        raise  e
+    finally:
+        db.close()
 
 def scrape_data():
     def create_soup(page_url):
@@ -70,7 +85,6 @@ def scrape_data():
         return (describe,poems, info_box, page_url)
 
     def excavating_data(person_data):
-        pass
         
 
     # crate soup from main page:
@@ -87,16 +101,14 @@ def scrape_data():
     for poet,link in poets_dict.items():
         print("درحال دریافت : ",poet)
         poets_temp[poet] = get_poet(link)
-        my_redis.set(poet,poets_temp[poet])
         time.sleep(1)
     poets_dict = poets_temp
-    my_redis.set("poet_list",poets_list)
+
 
 ################################################################################
 ### use data: ##################################################################
 ################################################################################
-poets_list = my_redis.hvals("poet_list")
-print(poets_list)
+
 
 
 
