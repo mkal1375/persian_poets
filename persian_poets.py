@@ -20,17 +20,27 @@ import sqlite3
 ################################################################################
 
 def create_tables():
+    """
+    create table for first use:
+    poets table : |id|name|describe|infobox
+    poems table : |id|poet_id|poem
+    """
     try:
         db = sqlite3.connect("poets.db")
         cursor = db.cursor()
         cursor.execute(""" CREATE TABLE poets(id INTEGER PRIMARY KEY AUTOINCREMENT,name,describe,infobox)""")
-        cursor.execute(""" CREATE TABLE poems(id INTEGER PRIMARY KEY AUTOINCREMENT,poet_id INTEGER,poem,FOREIGN KEY(poet_id) REFERENCES poet(id)) """)
+        cursor.execute(""" CREATE TABLE poems(id INTEGER PRIMARY KEY AUTOINCREMENT,poet_id INTEGER,poem,FOREIGN KEY(poet_id) REFERENCES poets(id)) """)
         db.commit()
+        return True
     except Exception as e:
         db.rollback()
+        return False
         raise  e
     finally:
         db.close()
+
+def insert_data():
+    
 
 def scrape_data():
     def create_soup(page_url):
@@ -85,7 +95,7 @@ def scrape_data():
         return (describe,poems, info_box, page_url)
 
     def excavating_data(person_data):
-        
+        pass
 
     # crate soup from main page:
     root_soup = create_soup("https://fa.wikipedia.org/wiki/%D9%81%D9%87%D8%B1%D8%B3%D8%AA_%D8%B4%D8%A7%D8%B9%D8%B1%D8%A7%D9%86_%D9%81%D8%A7%D8%B1%D8%B3%DB%8C%E2%80%8C%D8%B2%D8%A8%D8%A7%D9%86")
@@ -115,6 +125,8 @@ def scrape_data():
 ################################################################################
 ### main part: #################################################################
 ################################################################################
+
+# create_tables()
 
 # scrape_data()
 # read_data()
